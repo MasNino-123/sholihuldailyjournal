@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
     />
-    <link rel="icon" href="img/logo.png" />
+    <link rel="icon" href="img/Logoo.jpg" />
     <style>
       body {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="login-container">
       <div class="text-center mb-4">
         <i class="bi bi-person-circle display-4 text-primary"></i>
-        <h3 class="mt-3">My Daily Journal</h3>
+        <h3 class="mt-3">Welcome to My Daily Journal</h3>
         <hr />
       </div>
       
