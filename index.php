@@ -637,7 +637,7 @@ if (!$query) {
           <a href="#" class="text-dark fs-4" aria-label="WhatsApp" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
           <a href="#" class="text-dark fs-4" aria-label="X (Twitter)" title="X"><i class="bi bi-twitter-x"></i></a>
         </div>
-        <small class="text-muted">© 2025 My Daily Journal</small>
+        <small class="text-muted">© 2026 My Daily Journal</small>
       </div>
     </footer>
     <!-- footer end -->

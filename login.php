@@ -1,17 +1,39 @@
 <?php
 session_start();
+
+// Include koneksi database
+include "koneksi.php";
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['user'] ?? '';
-    $password = $_POST['pass'] ?? '';
+    $username = trim($_POST['user'] ?? '');
+    $password = trim($_POST['pass'] ?? '');
     
-    if ($username === 'admin' && $password === '123456') {
-        $_SESSION['username'] = $username;
-        header('Location: admin.php');
-        exit();
+    if (!empty($username) && !empty($password)) {
+        // Hash password dengan MD5 (sesuaikan dengan yang di database)
+        $password_hash = md5($password);
+        
+        // Query ke database menggunakan prepared statement
+        $stmt = $conn->prepare("SELECT * FROM user WHERE username = ? AND password = ?");
+        $stmt->bind_param("ss", $username, $password_hash);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            // Login berhasil
+            $user_data = $result->fetch_assoc();
+            $_SESSION['username'] = $user_data['username'];
+            
+            header('Location: admin.php');
+            exit();
+        } else {
+            $error = 'Username atau Password salah!';
+        }
+        
+        $stmt->close();
     } else {
-        $error = 'Username atau Password salah!';
+        $error = 'Username dan Password harus diisi!';
     }
 }
 ?>
@@ -60,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       
       <?php if (!empty($error)): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
           <?= htmlspecialchars($error) ?>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -67,32 +90,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       
       <form action="" method="post">
         <div class="mb-3">
+          <label class="form-label fw-bold">Username</label>
           <input
             type="text"
             name="user"
             class="form-control py-2 rounded-4"
-            placeholder="Username"
+            placeholder="Masukkan username"
             required
             autofocus
           />
         </div>
         <div class="mb-4">
+          <label class="form-label fw-bold">Password</label>
           <input
             type="password"
             name="pass"
             class="form-control py-2 rounded-4"
-            placeholder="Password"
+            placeholder="Masukkan password"
             required
           />
         </div>
         <div class="d-grid">
-          <button type="submit" class="btn btn-primary rounded-4 py-2">Login</button>
+          <button type="submit" class="btn btn-primary rounded-4 py-2">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+          </button>
         </div>
       </form>
       
-      <small class="text-center d-block mt-3 text-muted">
-        Demo: username: admin | password: 123456
-      </small>
+      <div class="text-center mt-4">
+        <small class="text-muted">
+          <i class="bi bi-shield-lock"></i> Login menggunakan akun terdaftar
+        </small>
+      </div>
     </div>
       
     <script

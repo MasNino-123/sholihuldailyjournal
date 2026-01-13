@@ -10,6 +10,16 @@ if (!isset($_SESSION['username'])) {
   exit();
 }
 
+// Ambil foto profil user
+$username = $_SESSION['username'];
+$stmt = $conn->prepare("SELECT foto FROM user WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$user_data = $result->fetch_assoc();
+$foto_profil = $user_data['foto'] ?? '';
+$stmt->close();
+
 // halaman aktif
 $page = $_GET['page'] ?? 'dashboard';
 ?>
@@ -39,6 +49,14 @@ $page = $_GET['page'] ?? 'dashboard';
     #content {
       flex: 1;
     }
+    .user-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 5px;
+      border: 2px solid #fff;
+    }
   </style>
 </head>
 
@@ -57,7 +75,7 @@ $page = $_GET['page'] ?? 'dashboard';
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-dark">
 
-          <!-- 6) menu dashboard + article -->
+          <!-- 6) menu dashboard + article + gallery -->
           <li class="nav-item">
             <a class="nav-link <?= ($page === 'dashboard') ? 'fw-bold text-dark' : 'text-dark' ?>"
                href="admin.php?page=dashboard">
@@ -72,15 +90,40 @@ $page = $_GET['page'] ?? 'dashboard';
             </a>
           </li>
 
-          <!-- Username dropdown -->
+          <li class="nav-item">
+            <a class="nav-link <?= ($page === 'gallery') ? 'fw-bold text-dark' : 'text-dark' ?>"
+               href="admin.php?page=gallery">
+              Gallery
+            </a>
+          </li>
+
+          <!-- Username dropdown dengan foto profil -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-dark fw-bold" href="#" role="button"
                data-bs-toggle="dropdown" aria-expanded="false">
-              <?= htmlspecialchars($_SESSION['username']); ?>
+              <?php
+              // Tampilkan foto profil jika ada
+              if (!empty($foto_profil) && file_exists('img/' . $foto_profil)) {
+                  echo '<img src="img/' . htmlspecialchars($foto_profil) . '" alt="Avatar" class="user-avatar">';
+              } else {
+                  echo '<i class="bi bi-person-circle"></i> ';
+              }
+              echo htmlspecialchars($_SESSION['username']);
+              ?>
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+              <li>
+                <a class="dropdown-item" href="admin.php?page=profile">
+                  <i class="bi bi-person-circle"></i> Profile
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="logout.php">
+                  <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+              </li>
             </ul>
           </li>
 
@@ -94,16 +137,26 @@ $page = $_GET['page'] ?? 'dashboard';
   <section id="content" class="p-5">
     <div class="container">
 
-      						<?php
-            if (isset($_GET['page'])) {
-                $page = $_GET['page'];
-            } else {
-                $page = "dashboard";
-            }
+      <?php
+      if (isset($_GET['page'])) {
+          $page = $_GET['page'];
+      } else {
+          $page = "dashboard";
+      }
 
-            echo '<h4 class="lead display-6 pb-2 border-bottom border-danger-subtle">' . $page . '</h4>';
-            include($page . ".php");
-            ?>
+      // Capitalize first letter untuk judul halaman
+      $page_title = ucfirst($page);
+      echo '<h4 class="lead display-6 pb-2 border-bottom border-danger-subtle">' . $page_title . '</h4>';
+      
+      // Include file sesuai page
+      if (file_exists($page . ".php")) {
+          include($page . ".php");
+      } else {
+          echo '<div class="alert alert-danger mt-3">';
+          echo '<i class="bi bi-exclamation-triangle"></i> Halaman tidak ditemukan!';
+          echo '</div>';
+      }
+      ?>
 
     </div>
   </section>
@@ -122,7 +175,7 @@ $page = $_GET['page'] ?? 'dashboard';
         <i class="bi bi-whatsapp h2 p-2 text-dark"></i>
       </a>
     </div>
-    <div>Aprilyani Nur Safitri &copy; 2023</div>
+    <small class="text-muted">© 2026 My Daily Journal</small>
   </footer>
   <!-- footer end -->
 
